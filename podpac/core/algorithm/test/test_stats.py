@@ -76,41 +76,34 @@ class BaseTests(object):
 
     def test_full(self):
         output = self.node.execute(coords)
+        # NOTE: using the numpy allclose because xarray allclose is also checking attrs (which should be ignored)
         # xr.testing.assert_allclose(output, self.expected_full)
         np.testing.assert_allclose(output.data, self.expected_full.data)
 
         output = self.node.execute(coords, {'dims': coords.dims})
-        # xr.testing.assert_allclose(output, self.expected_full)
         np.testing.assert_allclose(output.data, self.expected_full.data)
 
         output = self.node.execute(coords, {'iter_chunk_size': 100})
-        # xr.testing.assert_allclose(output, self.expected_full)
         np.testing.assert_allclose(output.data, self.expected_full.data)
 
         output = self.node.execute(coords, {'iter_chunk_size': 20})
-        # xr.testing.assert_allclose(output, self.expected_full)
         np.testing.assert_allclose(output.data, self.expected_full.data)
 
     def test_lat_lon(self):
         output = self.node.execute(coords, {'dims': ['lat', 'lon']})
-        # xr.testing.assert_allclose(output, self.expected_latlon)
         np.testing.assert_allclose(output.data, self.expected_latlon.data)
 
         output = self.node.execute(coords, {'dims': ['lat', 'lon'], 'iter_chunk_size': 100})
-        # xr.testing.assert_allclose(output, self.expected_latlon)
         np.testing.assert_allclose(output.data, self.expected_latlon.data)
 
     def test_time(self):
         output = self.node.execute(coords, {'dims': 'time'})
-        # xr.testing.assert_allclose(output, self.expected_time)
         np.testing.assert_allclose(output.data, self.expected_time.data)
 
         output = self.node.execute(coords, {'dims': 'time', 'iter_chunk_size': 100})
-        # xr.testing.assert_allclose(output, self.expected_time)
         np.testing.assert_allclose(output.data, self.expected_time.data)
 
         output = self.node.execute(coords, {'dims': 'time', 'iter_chunk_size': 10})
-        # xr.testing.assert_allclose(output, self.expected_time)
         np.testing.assert_allclose(output.data, self.expected_time.data)
 
 class TestMin(BaseTests):
