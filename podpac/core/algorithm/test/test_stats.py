@@ -87,6 +87,10 @@ class BaseTests(object):
         # xr.testing.assert_allclose(output, self.expected_full)
         np.testing.assert_allclose(output.data, self.expected_full.data)
 
+        output = self.node.execute(coords, {'iter_chunk_size': 20})
+        # xr.testing.assert_allclose(output, self.expected_full)
+        np.testing.assert_allclose(output.data, self.expected_full.data)
+
     def test_lat_lon(self):
         output = self.node.execute(coords, {'dims': ['lat', 'lon']})
         # xr.testing.assert_allclose(output, self.expected_latlon)
@@ -102,6 +106,10 @@ class BaseTests(object):
         np.testing.assert_allclose(output.data, self.expected_time.data)
 
         output = self.node.execute(coords, {'dims': 'time', 'iter_chunk_size': 100})
+        # xr.testing.assert_allclose(output, self.expected_time)
+        np.testing.assert_allclose(output.data, self.expected_time.data)
+
+        output = self.node.execute(coords, {'dims': 'time', 'iter_chunk_size': 10})
         # xr.testing.assert_allclose(output, self.expected_time)
         np.testing.assert_allclose(output.data, self.expected_time.data)
 
@@ -192,6 +200,7 @@ class TestPercentile(BaseTests):
     @classmethod
     def setup_class(cls):
         cls.node = Percentile(source=source)
+        # TODO can we replace dims_axes with reshape (or vice versa)
 
 @pytest.mark.skip("TODO")
 class TestGroupReduce(object):
