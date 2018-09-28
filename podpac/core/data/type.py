@@ -418,6 +418,8 @@ class WCS(podpac.DataSource):
     
     Attributes
     ----------
+    auth : Unicode
+        Authentication string, if needed; format is username:password.
     crs : TYPE
         Description
     get_capabilities_qs : TYPE
@@ -436,6 +438,7 @@ class WCS(podpac.DataSource):
     
     source = tl.Unicode()
     layer_name = tl.Unicode()
+    auth = tl.Unicode('')
     version = tl.Unicode(WCS_DEFAULT_VERSION)
     crs = tl.Unicode(WCS_DEFAULT_CRS)
     get_capabilities_qs = tl.Unicode('SERVICE=WCS&REQUEST=DescribeCoverage&'
@@ -483,7 +486,12 @@ class WCS(podpac.DataSource):
             else:
                 http = urllib3.PoolManager()
 
-            r = http.request('GET', self.get_capabilities_url)
+            if self.auth is not unicode(''):
+                headers = urllib3.util.make_headers(basic_auth=self.auth)
+            else:
+                headers = {}
+
+            r = http.request('GET', self.get_capabilities_url, headers=headers)
             capabilities = r.data
             if r.status != 200:
                 raise Exception("Could not get capabilities from WCS server")
@@ -578,6 +586,12 @@ class WCS(podpac.DataSource):
         output = self.initialize_coord_array(coordinates)
         dotime = 'time' in self.wcs_coordinates.dims
 
+        if urllib3 is not None:
+            if self.auth is not unicode(''):
+                headers = urllib3.util.make_headers(basic_auth=self.auth)
+            else:
+                headers = {}
+
         if 'time' in coordinates.dims and dotime:
             sd = np.timedelta64(0, 's')
             times = [str(t+sd) for t in coordinates['time'].coordinates]
@@ -612,7 +626,7 @@ class WCS(podpac.DataSource):
                         http = urllib3.PoolManager(ca_certs=certifi.where())
                     else:
                         http = urllib3.PoolManager()
-                    r = http.request('GET', url)
+                    r = http.request('GET', url, headers=headers)
                     if r.status != 200:
                         raise Exception("Could not get capabilities from WCS server")
                     content = r.data
@@ -672,7 +686,7 @@ class WCS(podpac.DataSource):
                     http = urllib3.PoolManager(ca_certs=certifi.where())
                 else:
                     http = urllib3.PoolManager()
-                r = http.request('GET', url)
+                r = http.request('GET', url, headers=headers)
                 if r.status != 200:
                     raise Exception("Could not get capabilities from WCS server")
                 content = r.data
